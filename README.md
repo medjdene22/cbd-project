@@ -9,5 +9,5 @@
 1. Clone the repo
 
 ```bash
-git clone <repo-url> container-monitoring
+git clone https://github.com/medjdene22/cbd-project.git container-monitoring
 cd container-monitoring
