@@ -1,0 +1,115 @@
+{
+  "id": null,
+  "title": "Docker & Host Monitoring Dashboard",
+  "tags": ["docker", "monitoring", "cadvisor", "node_exporter"],
+  "timezone": "browser",
+  "schemaVersion": 36,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "type": "row",
+      "title": "Host Metrics (Node Exporter)",
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 1 }
+    },
+    {
+      "type": "gauge",
+      "title": "Host CPU Usage (%)",
+      "gridPos": { "x": 0, "y": 1, "w": 6, "h": 7 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "100 - (avg by(instance)(irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)"
+        }
+      ]
+    },
+    {
+      "type": "gauge",
+      "title": "Host Memory Usage (%)",
+      "gridPos": { "x": 6, "y": 1, "w": 6, "h": 7 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Host Disk Usage (%)",
+      "gridPos": { "x": 12, "y": 1, "w": 6, "h": 7 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "100 - ((node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"}) * 100)"
+        }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Host CPU Load (1m)",
+      "gridPos": { "x": 18, "y": 1, "w": 6, "h": 7 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "node_load1"
+        }
+      ]
+    },
+
+    {
+      "type": "row",
+      "title": "Container Metrics (cAdvisor)",
+      "gridPos": { "x": 0, "y": 8, "w": 24, "h": 1 }
+    },
+
+    {
+      "type": "graph",
+      "title": "Container CPU Usage (%)",
+      "gridPos": { "x": 0, "y": 9, "w": 12, "h": 8 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "rate(container_cpu_usage_seconds_total{image!=\"\",container!=\"POD\"}[2m]) * 100"
+        }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Container Memory Usage (MB)",
+      "gridPos": { "x": 12, "y": 9, "w": 12, "h": 8 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "container_memory_usage_bytes{image!=\"\",container!=\"POD\"} / 1024 / 1024"
+        }
+      ]
+    },
+
+    {
+      "type": "graph",
+      "title": "Container Network I/O (RX / TX)",
+      "gridPos": { "x": 0, "y": 17, "w": 12, "h": 8 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "rate(container_network_receive_bytes_total[2m])"
+        },
+        {
+          "expr": "rate(container_network_transmit_bytes_total[2m])"
+        }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Container Restart Count",
+      "gridPos": { "x": 12, "y": 17, "w": 12, "h": 8 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "container_last_seen{image!=\"\",container!=\"POD\"}"
+        }
+      ]
+    }
+  ]
+}
