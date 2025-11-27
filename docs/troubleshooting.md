@@ -10,6 +10,3 @@
 **Grafana shows an empty dashboard**
 - Confirm datasource is configured: Grafana -> Configuration -> Data Sources -> Prometheus. Should be `http://prometheus:9090`.
 - Check Grafana logs `docker compose logs grafana`.
-
-**Container-level metrics missing**
-- Make sure `cadvisor` has access to Docker runtime files (`/var/lib/docker`) and `privileged: true` in compose if necessary on some platforms.

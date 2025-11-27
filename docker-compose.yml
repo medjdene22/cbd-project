@@ -42,19 +42,21 @@ services:
       - "9100:9100"
     restart: unless-stopped
 
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
-    container_name: cadvisor
-    privileged: true
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:rw
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-      - /dev/disk/:/dev/disk:ro
-    ports:
-      - "8080:8080"
+  logporter:
+    image: lifailon/logporter:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: logporter
     restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - DOCKER_LOG_METRICS=false
+      - DOCKER_LOG_CUSTOM_METRICS=false
+      - DOCKER_LOG_CUSTOM_QUERY=\"(err|error|ERR|ERROR)\"
+    ports:
+      - 9333:9333
 
   tunnel:
     image: cloudflare/cloudflared:latest
