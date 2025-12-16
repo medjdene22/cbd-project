@@ -4,11 +4,11 @@ This monitoring stack uses the following components:
 exporters.
 - **node_exporter:** exposes host-level metrics (CPU, memory, disk, kernel
 stats).
-- **cAdvisor:** collects container-level metrics from the Docker runtime
+- **logporter:** collects container-level metrics from the Docker runtime
 (per-container CPU, memory, network, filesystem).
 - **Grafana:** visualization layer. Uses Prometheus as a data source.
-Data flow: node_exporter / cAdvisor -> Prometheus (scrape) -> Grafana (query
+Data flow: node_exporter / logporter -> Prometheus (scrape and store) -> Grafana (query
 + visualize).
 Networking: Docker Compose creates a bridge network where services can reach
 each other by service name (e.g., `prometheus`, `grafana`, `node_exporter`,
-`cadvisor`).
+`logporter`).
