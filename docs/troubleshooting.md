@@ -1,12 +1,134 @@
-# Troubleshooting
+# Troubleshooting Guide
 
-**Prometheus can't scrape target**
-- Check `prometheus/prometheus.yml` and ensure targets ause the service name. Use `docker compose logs prometheus` to inspect logs.
-- From Prometheus container run `apt update && apt install -y curl` then `curl http://node_exporter:9100/metrics` to test connectivity.
+This document helps diagnose **common issues** in the monitoring stack.
 
-**node_exporter metrics missing or incorrect**
-- Ensure `node_exporter` mounts `/proc` and `/sys` as read-only. Missing mounts will result in partial metrics.
+---
 
-**Grafana shows an empty dashboard**
-- Confirm datasource is configured: Grafana -> Configuration -> Data Sources -> Prometheus. Should be `http://prometheus:9090`.
-- Check Grafana logs `docker compose logs grafana`.
+## ❌ Containers Not Starting
+
+### Check status
+```bash
+docker compose ps
+```
+
+### View logs
+```bash
+docker compose logs <service>
+```
+
+---
+
+## 🔴 Prometheus Targets Down
+
+### Symptoms
+- Target shows `DOWN` in Prometheus UI
+
+### Fix
+- Verify service name and port
+- Check container networking
+- Ensure `/metrics` endpoint is reachable
+
+```bash
+docker exec -it prometheus wget -qO- http://node_exporter:9100/metrics
+```
+
+---
+
+## 📉 No Data in Grafana
+
+### Possible Causes
+- Prometheus data source misconfigured
+- Prometheus container not running
+- Incorrect PromQL query
+
+### Fix
+- Data source URL must be: `http://prometheus:9090`
+- Test query in Prometheus UI first
+
+---
+
+## 📧 Grafana Alerts Not Sending Email
+
+### Checklist
+- SMTP enabled
+- App password used (Gmail)
+- Correct FROM address
+
+### Test SMTP
+```bash
+docker exec -it grafana grafana-cli admin reset-admin-password test
+```
+
+Check logs:
+```bash
+docker compose logs grafana
+```
+
+---
+
+## 🔐 Cloudflare Tunnel Not Working
+
+### Symptoms
+- External URL not reachable
+
+### Fix
+- Ensure tunnel container is running
+- Verify command points to `grafana:3000`
+- Check Cloudflare account logs
+
+```bash
+docker compose logs cloudflared
+```
+
+---
+
+## 🐳 Logporter Not Reporting Logs
+
+### Checklist
+- Docker socket mounted read-only
+- Containers producing logs
+- Pattern matches log content
+
+### Verify
+```bash
+docker exec -it logporter wget -qO- http://localhost:9333/metrics
+```
+
+---
+
+## 💾 Data Loss After Restart
+
+### Cause
+- Volumes not mounted correctly
+
+### Fix
+- Ensure volumes exist:
+```bash
+docker volume ls
+```
+
+- Do not remove volumes unless intended:
+```bash
+docker compose down -v
+```
+
+---
+
+## 🧠 General Debug Tips
+
+- Restart stack:
+```bash
+docker compose restart
+```
+
+- Update images:
+```bash
+docker compose pull
+docker compose up -d
+```
+
+---
+
+## 📄 Notes
+
+Always verify container logs first. Most issues are related to networking, credentials, or permissions.
